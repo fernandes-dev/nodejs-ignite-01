@@ -51,22 +51,19 @@ app.post("/users", (request, response) => {
 });
 
 app.get("/todos", checksExistsUserAccount, (request, response) => {
-  const [todos] = users
-    .filter((u) => u.username === request.user.username)
-    .map((userData) => userData.todos);
+  const { todos } = request.user;
 
   return response.json(todos);
 });
 
 app.post("/todos", checksExistsUserAccount, (request, response) => {
+  const { user } = request;
   const { title, deadline } = request.body;
 
   if (!title || !deadline)
     return response.status(400).json({ error: "Bad request" });
 
-  const userIndex = users.findIndex(
-    (u) => u.username === request.user.username
-  );
+  const userIndex = users.findIndex((u) => u.username === user.username);
 
   const newTodo = {
     id: uuidv4(),
@@ -82,15 +79,14 @@ app.post("/todos", checksExistsUserAccount, (request, response) => {
 });
 
 app.put("/todos/:id", checksExistsUserAccount, (request, response) => {
-  const todoId = request.params.id;
+  const { id } = request.params;
+  const { user } = request;
 
   const { title, deadline } = request.body;
 
-  const userIndex = users.findIndex(
-    (u) => u.username === request.user.username
-  );
+  const userIndex = users.findIndex((u) => u.username === user.username);
 
-  const todoIndex = users[userIndex].todos.findIndex((t) => t.id === todoId);
+  const todoIndex = users[userIndex].todos.findIndex((t) => t.id === id);
 
   if (todoIndex === -1)
     return response.status(404).json({
@@ -113,13 +109,12 @@ app.put("/todos/:id", checksExistsUserAccount, (request, response) => {
 });
 
 app.patch("/todos/:id/done", checksExistsUserAccount, (request, response) => {
-  const todoId = request.params.id;
+  const { id } = request.params;
+  const { user } = request;
 
-  const userIndex = users.findIndex(
-    (u) => u.username === request.user.username
-  );
+  const userIndex = users.findIndex((u) => u.username === user.username);
 
-  const todoIndex = users[userIndex].todos.findIndex((t) => t.id === todoId);
+  const todoIndex = users[userIndex].todos.findIndex((t) => t.id === id);
 
   if (todoIndex === -1)
     return response.status(404).json({
@@ -135,13 +130,12 @@ app.patch("/todos/:id/done", checksExistsUserAccount, (request, response) => {
 });
 
 app.delete("/todos/:id", checksExistsUserAccount, (request, response) => {
-  const todoId = request.params.id;
+  const { id } = request.params;
+  const { user } = request;
 
-  const userIndex = users.findIndex(
-    (u) => u.username === request.user.username
-  );
+  const userIndex = users.findIndex((u) => u.username === user.username);
 
-  const todoIndex = users[userIndex].todos.findIndex((t) => t.id === todoId);
+  const todoIndex = users[userIndex].todos.findIndex((t) => t.id === id);
 
   if (todoIndex === -1)
     return response.status(404).json({
